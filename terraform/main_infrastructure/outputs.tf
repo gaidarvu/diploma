@@ -27,3 +27,5 @@ output "nat_vm_details" {
     }
   ]
 }
+
+# terraform init -backend-config=backend.hcl -migrate-state
