@@ -1,0 +1,57 @@
+#cloud-config
+users:
+  - name: gaidar
+    groups: sudo
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${vms_ssh_root_key}
+package_update: true
+package_upgrade: false
+packages:
+  - vim
+  - wget
+  - python3-pip
+write_files:
+  - path: /root/.ssh/id_ed25519
+    permissions: '0600'
+    owner: root:root
+    content: |
+      ${ssh_private_key}
+
+  - path: /tmp/inventory.ini
+    permissions: '0755'
+    content: |
+      ${inventory_content}
+        
+  - path: /root/init.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      HOMEYAK=/home/gaidar
+      cp /root/.ssh/id_ed25519 $HOMEYAK/.ssh/
+      chown gaidar: $HOMEYAK/.ssh/id_ed25519
+      chmod 600 $HOMEYAK/.ssh/id_ed25519
+      cd $HOMEYAK
+      git clone https://github.com/kubernetes-sigs/kubespray.git
+      cd
+      cp -r $HOMEYAK/kubespray/inventory/sample/ $HOMEYAK/kubespray/inventory/mycluster
+      cp -r /tmp/inventory.ini $HOMEYAK/kubespray/inventory/mycluster
+      chown -R gaidar: $HOMEYAK/kubespray
+      MY_IP=$(curl -s ifconfig.me)
+      SELF_IP=$(hostname -I | awk '{print $1}')
+      EXTRA="[$MY_IP, $SELF_IP]"
+      sed -i "s/.*supplementary_addresses_in_ssl_keys.*/supplementary_addresses_in_ssl_keys: $EXTRA/" $HOMEYAK/kubespray/inventory/mycluster/group_vars/k8s_cluster/k8s-cluster.yml
+      pip install -r $HOMEYAK/kubespray/requirements.txt
+      apt purge -y motd-news-config
+      rm -f /etc/update-motd.d/*
+      cd $HOMEYAK/kubespray
+      ansible-playbook -i inventory/mycluster/inventory.ini cluster.yml -u gaidar --become      
+      mkdir -p $HOMEYAK/.kube/
+      cp /etc/kubernetes/admin.conf $HOMEYAK/.kube/config
+      chown -R gaidar: $HOMEYAK/.kube
+      # scp $(terraform output -json master_vm_details | jq -r '.[0].ext_ip_address'):/home/gaidar/.kube/config ~/.kube/
+      # sed -i "s/127\.0\.0\.1/$(terraform output -json master_vm_details | jq -r '.[0].ext_ip_address')/" ~/.kube/config
+runcmd:
+  - timedatectl set-timezone Europe/Moscow
+  - /root/init.sh
