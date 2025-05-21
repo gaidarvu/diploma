@@ -18,8 +18,6 @@ write_files:
       #!/bin/bash
       apt purge -y motd-news-config
       rm -f /etc/update-motd.d/*
-      apt update
-      apt -y install nginx
 runcmd:
   - timedatectl set-timezone Europe/Moscow
   - /root/init.sh

@@ -211,7 +211,7 @@ resource "yandex_lb_network_load_balancer" "web_lb" {
     healthcheck {
       name                = var.load_balancer_config.healthcheck_name
       tcp_options {
-        port              = var.load_balancer_config.target_port
+        port              = var.load_balancer_config.healthcheck_port
       }
     }
   }
