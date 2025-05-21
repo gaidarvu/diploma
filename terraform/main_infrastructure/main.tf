@@ -1,42 +1,42 @@
 resource "yandex_vpc_network" "k8s_cluster_network" {
-  name = var.vpc_name
+  name                    = var.vpc_name
 }
 
 resource "yandex_vpc_route_table" "private_route_table" {
-  network_id = yandex_vpc_network.k8s_cluster_network.id
-  name       = var.private_rt_name
+  network_id              = yandex_vpc_network.k8s_cluster_network.id
+  name                    = var.private_rt_name
 
   static_route {
-    destination_prefix = var.private_dest_addr_pref
-    next_hop_address   = var.nat_vm["nat_vm_1"].ip_address
+    destination_prefix    = var.private_dest_addr_pref
+    next_hop_address      = var.nat_vm["nat_vm_1"].ip_address
   }
 }
 
 
 resource "yandex_vpc_subnet" "public_subnet" {
-  name           = var.each_subnet["public_subnet"].name
-  zone           = var.each_subnet["public_subnet"].zone
-  network_id     = yandex_vpc_network.k8s_cluster_network.id
-  v4_cidr_blocks = var.each_subnet["public_subnet"].v4_cidr_blocks
+  name                    = var.each_subnet["public_subnet"].name
+  zone                    = var.each_subnet["public_subnet"].zone
+  network_id              = yandex_vpc_network.k8s_cluster_network.id
+  v4_cidr_blocks          = var.each_subnet["public_subnet"].v4_cidr_blocks
 }
 
 resource "yandex_vpc_subnet" "private_subnet" {
-  name           = var.each_subnet["private_subnet"].name
-  zone           = var.each_subnet["private_subnet"].zone
-  network_id     = yandex_vpc_network.k8s_cluster_network.id
-  v4_cidr_blocks = var.each_subnet["private_subnet"].v4_cidr_blocks
-  route_table_id = yandex_vpc_route_table.private_route_table.id
+  name                    = var.each_subnet["private_subnet"].name
+  zone                    = var.each_subnet["private_subnet"].zone
+  network_id              = yandex_vpc_network.k8s_cluster_network.id
+  v4_cidr_blocks          = var.each_subnet["private_subnet"].v4_cidr_blocks
+  route_table_id          = yandex_vpc_route_table.private_route_table.id
 }
 
 locals {
   subnet_map = {
-    public  = yandex_vpc_subnet.public_subnet.id
-    private = yandex_vpc_subnet.private_subnet.id
+    public                = yandex_vpc_subnet.public_subnet.id
+    private               = yandex_vpc_subnet.private_subnet.id
   }
 
   subnet_zone_map = {
-    public  = var.each_subnet["public_subnet"].zone
-    private = var.each_subnet["private_subnet"].zone
+    public                = var.each_subnet["public_subnet"].zone
+    private               = var.each_subnet["private_subnet"].zone
   }
 }
 
@@ -75,30 +75,30 @@ data "template_file" "cloudinit-worker" {
 }
 
 resource "yandex_compute_instance" "worker_instances" {
-  for_each          = var.worker_vm
-  name              = each.value.vm_name
-  hostname          = each.value.vm_name
-  platform_id       = each.value.platform_id
-  zone              = local.subnet_zone_map[each.value.subnet_name]
+  for_each                = var.worker_vm
+  name                    = each.value.vm_name
+  hostname                = each.value.vm_name
+  platform_id             = each.value.platform_id
+  zone                    = local.subnet_zone_map[each.value.subnet_name]
   resources {
-    cores           = each.value.cpu
-    memory          = each.value.ram
-    core_fraction   = each.value.core_fraction
+    cores                 = each.value.cpu
+    memory                = each.value.ram
+    core_fraction         = each.value.core_fraction
   }
   boot_disk {
     initialize_params {
-      image_id      = each.value.os_family
-      type          = each.value.type
-      size          = each.value.disk_volume
+      image_id            = each.value.os_family
+      type                = each.value.type
+      size                = each.value.disk_volume
     }
   }
   scheduling_policy {
-    preemptible     = each.value.scheduling_policy
+    preemptible           = each.value.scheduling_policy
   }
     network_interface {
-    subnet_id = local.subnet_map[each.value.subnet_name]
-    ip_address = each.value.ip_address
-    nat        = each.value.network_interface
+    subnet_id             = local.subnet_map[each.value.subnet_name]
+    ip_address            = each.value.ip_address
+    nat                   = each.value.network_interface
   }
 
     metadata = {
@@ -108,30 +108,30 @@ resource "yandex_compute_instance" "worker_instances" {
 }
 
 resource "yandex_compute_instance" "master_instances" {
-  for_each          = var.master_vm
-  name              = each.value.vm_name
-  hostname          = each.value.vm_name
-  platform_id       = each.value.platform_id
-  zone              = local.subnet_zone_map[each.value.subnet_name]
+  for_each                = var.master_vm
+  name                    = each.value.vm_name
+  hostname                = each.value.vm_name
+  platform_id             = each.value.platform_id
+  zone                    = local.subnet_zone_map[each.value.subnet_name]
   resources {
-    cores           = each.value.cpu
-    memory          = each.value.ram
-    core_fraction   = each.value.core_fraction
+    cores                 = each.value.cpu
+    memory                = each.value.ram
+    core_fraction         = each.value.core_fraction
   }
   boot_disk {
     initialize_params {
-      image_id      = each.value.os_family
-      type          = each.value.type
-      size          = each.value.disk_volume
+      image_id            = each.value.os_family
+      type                = each.value.type
+      size                = each.value.disk_volume
     }
   }
   scheduling_policy {
-    preemptible     = each.value.scheduling_policy
+    preemptible           = each.value.scheduling_policy
   }
     network_interface {
-    subnet_id = local.subnet_map[each.value.subnet_name]
-    ip_address = each.value.ip_address
-    nat        = each.value.network_interface
+    subnet_id             = local.subnet_map[each.value.subnet_name]
+    ip_address            = each.value.ip_address
+    nat                   = each.value.network_interface
   }
 
     metadata = {
@@ -141,30 +141,30 @@ resource "yandex_compute_instance" "master_instances" {
 }
 
 resource "yandex_compute_instance" "nat_instances" {
-  for_each          = var.nat_vm
-  name              = each.value.vm_name
-  hostname          = each.value.vm_name
-  platform_id       = each.value.platform_id
-  zone              = local.subnet_zone_map[each.value.subnet_name]
+  for_each                = var.nat_vm
+  name                    = each.value.vm_name
+  hostname                = each.value.vm_name
+  platform_id             = each.value.platform_id
+  zone                    = local.subnet_zone_map[each.value.subnet_name]
   resources {
-    cores           = each.value.cpu
-    memory          = each.value.ram
-    core_fraction   = each.value.core_fraction
+    cores                 = each.value.cpu
+    memory                = each.value.ram
+    core_fraction         = each.value.core_fraction
   }
   boot_disk {
     initialize_params {
-      image_id      = each.value.os_family
-      type          = each.value.type
-      size          = each.value.disk_volume
+      image_id            = each.value.os_family
+      type                = each.value.type
+      size                = each.value.disk_volume
     }
   }
   scheduling_policy {
-    preemptible     = each.value.scheduling_policy
+    preemptible           = each.value.scheduling_policy
   }
     network_interface {
-    subnet_id = local.subnet_map[each.value.subnet_name]
-    ip_address = each.value.ip_address
-    nat        = each.value.network_interface
+    subnet_id             = local.subnet_map[each.value.subnet_name]
+    ip_address            = each.value.ip_address
+    nat                   = each.value.network_interface
   }
 
     metadata = {
@@ -174,27 +174,27 @@ resource "yandex_compute_instance" "nat_instances" {
 }
 
 resource "yandex_lb_target_group" "worker_target_group" {
-  name      = var.target_group_name
-  region_id = var.default_region
+  name                    = var.target_group_name
+  region_id               = var.default_region
 
   dynamic "target" {
     for_each = {
       for k, instance in var.worker_vm :
       k => {
-        subnet_id = local.subnet_map[instance.subnet_name]
-        address   = instance.ip_address
+        subnet_id         = local.subnet_map[instance.subnet_name]
+        address           = instance.ip_address
       }
     }
     content {
-      subnet_id = target.value.subnet_id
-      address   = target.value.address
+      subnet_id           = target.value.subnet_id
+      address             = target.value.address
     }
   }
 }
 
 resource "yandex_lb_network_load_balancer" "web_lb" {
-  name       = var.load_balancer_config.name
-  region_id  = var.default_region
+  name                    = var.load_balancer_config.name
+  region_id               = var.default_region
   listener {
     name                  = var.load_balancer_config.listener_name
     port                  = var.load_balancer_config.listener_port
