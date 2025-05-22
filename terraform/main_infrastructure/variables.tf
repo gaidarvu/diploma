@@ -81,6 +81,7 @@ variable "worker_vm" {
     os_family           = string
     subnet_name         = string
     ip_address          = string
+    allow_stopping      = bool
     }))
   default = {
     "vm1" = {
@@ -96,6 +97,7 @@ variable "worker_vm" {
       os_family         = "fd8jnll1ou4fv2gil3rv"
       subnet_name       = "private"
       ip_address        = "192.168.10.10"
+      allow_stopping    = true
     }
     "vm2" = {
       platform_id       = "standard-v3"
@@ -110,6 +112,7 @@ variable "worker_vm" {
       os_family         = "fd8jnll1ou4fv2gil3rv"
       subnet_name       = "private"
       ip_address        = "192.168.10.20"
+      allow_stopping    = true
     }
     "vm3" = {
       platform_id       = "standard-v3"
@@ -124,6 +127,7 @@ variable "worker_vm" {
       os_family         = "fd8jnll1ou4fv2gil3rv"
       subnet_name       = "private"
       ip_address        = "192.168.10.30"
+      allow_stopping    = true
     }
   }
 }
@@ -141,6 +145,7 @@ variable "master_vm" {
     os_family           = string
     subnet_name         = string
     ip_address          = string
+    allow_stopping      = bool
     }))
   default = {
     "master_node_1" = {
@@ -156,6 +161,7 @@ variable "master_vm" {
       os_family         = "fd8jnll1ou4fv2gil3rv"
       subnet_name       = "public"
       ip_address        = "192.168.0.250"
+      allow_stopping    = false
     }
   }
 }
@@ -173,6 +179,7 @@ variable "nat_vm" {
     os_family           = string
     subnet_name         = string
     ip_address          = string
+    allow_stopping      = bool
     }))
   default = {
     "nat_vm_1" = {
@@ -188,6 +195,7 @@ variable "nat_vm" {
       os_family         = "fd80mrhj8fl2oe87o4e1"
       subnet_name       = "public"
       ip_address        = "192.168.0.254"
+      allow_stopping    = true
     }
   }
 }

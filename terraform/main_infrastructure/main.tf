@@ -80,6 +80,7 @@ resource "yandex_compute_instance" "worker_instances" {
   hostname                = each.value.vm_name
   platform_id             = each.value.platform_id
   zone                    = local.subnet_zone_map[each.value.subnet_name]
+  allow_stopping_for_update = each.value.allow_stopping
   resources {
     cores                 = each.value.cpu
     memory                = each.value.ram
@@ -113,6 +114,7 @@ resource "yandex_compute_instance" "master_instances" {
   hostname                = each.value.vm_name
   platform_id             = each.value.platform_id
   zone                    = local.subnet_zone_map[each.value.subnet_name]
+  allow_stopping_for_update = each.value.allow_stopping
   resources {
     cores                 = each.value.cpu
     memory                = each.value.ram
@@ -146,6 +148,7 @@ resource "yandex_compute_instance" "nat_instances" {
   hostname                = each.value.vm_name
   platform_id             = each.value.platform_id
   zone                    = local.subnet_zone_map[each.value.subnet_name]
+  allow_stopping_for_update = each.value.allow_stopping
   resources {
     cores                 = each.value.cpu
     memory                = each.value.ram
