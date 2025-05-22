@@ -120,6 +120,8 @@ Docker файл с тестовой страницей html и nginx.conf леж
 
 ```# helm repo update```
 
+Запускаем установку с конфигом из склонированного ранее репозитория
+
 ```# helm upgrade --install kube-prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace -f ~/k8s_cfgs/kube-prom-values.yaml```
 
 Gragana доступна по адресу http://158.160.172.134/grafana
