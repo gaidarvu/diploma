@@ -24,7 +24,6 @@ jobs:
           terraform_version: 1.8.4
 
       - name: Create backend.hcl
-        working-directory: terraform/main_infrastructure
         run: |
             cat <<EOF > backend.hcl
             bucket     = "${{ secrets.TF_BACKEND_BUCKET }}"
@@ -38,11 +37,19 @@ jobs:
     #     run: echo "${{ secrets.TF_BACKEND_HCL }}" > backend.hcl
 
       - name: Write tfvars file
-        run: echo "${{ secrets.TF_VARS }}" > personal.auto.tfvars
+        run: |
+            cat <<EOF > personal.auto.tfvars
+            cloud_id     = "${{ secrets.TF_CLOUD_ID }}"
+            folder_id     = "${{ secrets.TF_FOLDER_ID }}"
+            vms_ssh_root_key    = "${{ secrets.VMS_SSH_ROOT_KEY }}"
+            master_ssh_private_key = <<EOKEY
+            ${{ secrets.MASTER_SSH_PRIVATE_KEY }}
+            EOKEY
+            EOF
 
       - name: Write Yandex Cloud SA key        
         run: |
-          cat <<EOF > key.json
+          cat <<EOF > terraform-key.json
           ${{ secrets.YC_SA_KEY }}
           EOF
 
