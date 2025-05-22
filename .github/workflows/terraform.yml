@@ -39,10 +39,10 @@ jobs:
       - name: Write tfvars file
         run: |
             cat <<EOF > personal.auto.tfvars
-            cloud_id     = "${{ secrets.TF_CLOUD_ID }}"
-            folder_id     = "${{ secrets.TF_FOLDER_ID }}"
-            vms_ssh_root_key    = "${{ secrets.VMS_SSH_ROOT_KEY }}"
-            master_ssh_private_key = ${{ secrets.MASTER_SSH_PRIVATE_KEY }}
+            cloud_id                = "${{ secrets.TF_CLOUD_ID }}"
+            folder_id               = "${{ secrets.TF_FOLDER_ID }}"
+            vms_ssh_root_key        = "${{ secrets.VMS_SSH_ROOT_KEY }}"
+            master_ssh_private_key  = ${{ secrets.MASTER_SSH_PRIVATE_KEY }}
             EOF
 
       - name: Write Yandex Cloud SA key        
