@@ -167,7 +167,6 @@ Workflow прошел успешно
 ![alt text](pics/workflow-tf4.png)
 
 Как видим vm остановилась
-
 ![alt text](pics/vm_state.png)
 
 И поднялась уже с 2ГБ оперативки
