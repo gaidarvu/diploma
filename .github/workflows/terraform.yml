@@ -29,8 +29,11 @@ jobs:
       - name: Write tfvars file
         run: echo "${{ secrets.TF_VARS }}" > personal.auto.tfvars
 
-      - name: Write Yandex Cloud SA key
-        run: echo "${{ secrets.YC_SA_KEY }}" > terraform-key.json
+      - name: Write Yandex Cloud SA key        
+        run: |
+          cat <<EOF > key.json
+          ${{ secrets.YC_SA_KEY }}
+          EOF
 
     #   - name: Terraform Init
     #     run: terraform init -backend-config=backend.hcl
